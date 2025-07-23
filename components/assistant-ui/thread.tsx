@@ -2,6 +2,7 @@ import {
   ActionBarPrimitive,
   BranchPickerPrimitive,
   ComposerPrimitive,
+  ErrorPrimitive,
   MessagePrimitive,
   ThreadPrimitive,
 } from "@assistant-ui/react";
@@ -16,12 +17,11 @@ import {
   RefreshCwIcon,
   SendHorizontalIcon,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-
 import { Button } from "@/components/ui/button";
-import { MarkdownText } from "@/components/assistant-ui/markdown-text";
-import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { MarkdownText } from "./markdown-text";
+import { TooltipIconButton } from "./tooltip-icon-button";
 import { ToolFallback } from "./tool-fallback";
+import { cn } from "@/lib/utils";
 
 export const Thread: FC = () => {
   return (
@@ -206,12 +206,23 @@ const AssistantMessage: FC = () => {
         <MessagePrimitive.Content
           components={{ Text: MarkdownText, tools: { Fallback: ToolFallback } }}
         />
+        <MessageError />
       </div>
 
       <AssistantActionBar />
 
       <BranchPicker className="col-start-2 row-start-2 -ml-2 mr-2" />
     </MessagePrimitive.Root>
+  );
+};
+
+const MessageError: FC = () => {
+  return (
+    <MessagePrimitive.Error>
+      <ErrorPrimitive.Root className="border-destructive bg-destructive/10 dark:text-red-200 dark:bg-destructive/5 text-destructive mt-2 rounded-md border p-3 text-sm">
+        <ErrorPrimitive.Message className="line-clamp-2" />
+      </ErrorPrimitive.Root>
+    </MessagePrimitive.Error>
   );
 };
 
@@ -251,7 +262,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
       hideWhenSingleBranch
       className={cn(
         "text-muted-foreground inline-flex items-center text-xs",
-        className
+        className,
       )}
       {...rest}
     >
