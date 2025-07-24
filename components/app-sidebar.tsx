@@ -9,7 +9,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar"
@@ -46,11 +45,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <ThreadList />
       </SidebarContent>
-      
-      <SidebarRail />
       <SidebarFooter>
         <SidebarMenu>
-         
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="https://github.com/assistant-ui/assistant-ui" target="_blank">
@@ -63,7 +59,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
               </Link>
             </SidebarMenuButton>
-            
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
