@@ -36,11 +36,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
-          {state === "expanded" && (
-            <SidebarTrigger className="mr-2">
-              <PanelLeftClose className="size-4" />
-            </SidebarTrigger>
-          )}
+          <SidebarTrigger className={`mr-2 transition-all duration-150 ${
+            state === "collapsed" ? "opacity-0 translate-x-8 pointer-events-none" : "translate-x-0"
+          }`}>
+            <PanelLeftClose className="size-4" />
+          </SidebarTrigger>
         </div>
       </SidebarHeader>
       <SidebarContent>

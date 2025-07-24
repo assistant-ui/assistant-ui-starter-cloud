@@ -17,11 +17,11 @@ const MainContent = () => {
   
   return (
     <>
-      {state === "collapsed" && (
-        <SidebarTrigger className="absolute left-4 top-4 z-10">
-          <PanelLeftOpen className="size-4" />
-        </SidebarTrigger>
-      )}
+      <SidebarTrigger className={`absolute left-2.25 top-2.25 m-2 z-10 transition-all duration-150 ${
+        state === "expanded" ? "-translate-x-12 opacity-0 pointer-events-none" : "translate-x-0"
+      }`}>
+        <PanelLeftOpen className="size-4" />
+      </SidebarTrigger>
       <Thread />
     </>
   );
@@ -36,7 +36,7 @@ export const Assistant = () => {
   return (
     <AssistantRuntimeProvider runtime={runtime}>
       <SidebarProvider>
-        <div className="flex h-dvh w-full p-2">
+        <div className="flex h-dvh w-full pr-0.5">
           <AppSidebar />
           <SidebarInset className="flex-1">
             <MainContent />
