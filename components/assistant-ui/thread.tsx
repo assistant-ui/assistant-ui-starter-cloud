@@ -18,9 +18,9 @@ import {
   SendHorizontalIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MarkdownText } from "./markdown-text";
-import { TooltipIconButton } from "./tooltip-icon-button";
-import { ToolFallback } from "./tool-fallback";
+import { MarkdownText } from "@/components/assistant-ui/markdown-text";
+import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { cn } from "@/lib/utils";
 
 export const Thread: FC = () => {
@@ -158,7 +158,7 @@ const UserMessage: FC = () => {
       <UserActionBar />
 
       <div className="bg-muted text-foreground max-w-[calc(var(--thread-max-width)*0.8)] break-words rounded-3xl px-5 py-2.5 col-start-2 row-start-2">
-        <MessagePrimitive.Content />
+        <MessagePrimitive.Parts />
       </div>
 
       <BranchPicker className="col-span-full col-start-1 row-start-3 -mr-1 justify-end" />
@@ -203,7 +203,7 @@ const AssistantMessage: FC = () => {
   return (
     <MessagePrimitive.Root className="grid grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] relative w-full max-w-[var(--thread-max-width)] py-4">
       <div className="text-foreground max-w-[calc(var(--thread-max-width)*0.8)] break-words leading-7 col-span-2 col-start-2 row-start-1 my-1.5">
-        <MessagePrimitive.Content
+        <MessagePrimitive.Parts
           components={{ Text: MarkdownText, tools: { Fallback: ToolFallback } }}
         />
         <MessageError />
