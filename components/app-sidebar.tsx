@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
+  SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { ThreadList } from "./assistant-ui/thread-list";
@@ -19,7 +20,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="border-b mb-2">
         <div className="flex items-center justify-between">
           <SidebarMenu>
             <SidebarMenuItem className="mr-2">
