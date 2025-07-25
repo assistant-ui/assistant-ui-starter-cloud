@@ -116,6 +116,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  :root {
+    color-scheme: light;
+  }
+
+  :root.dark {
+    color-scheme: dark;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -135,7 +144,7 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/30;
   }
-  
+
   /* Firefox only scrollbar styling */
   @-moz-document url-prefix() {
     * {
