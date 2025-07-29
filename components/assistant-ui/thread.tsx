@@ -10,7 +10,7 @@ import type { FC } from "react";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
-  PaperclipIcon,
+  PlusIcon,
   CopyIcon,
   CheckIcon,
   PencilIcon,
@@ -94,7 +94,7 @@ const ThreadWelcome: FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ delay: 0.6 }}
-              className="text-2xl text-zinc-500"
+              className="text-muted-foreground/65 text-2xl"
             >
               How can I help you today?
             </motion.div>
@@ -167,11 +167,11 @@ const Composer: FC = () => {
       <ThreadPrimitive.Empty>
         <ThreadWelcomeSuggestions />
       </ThreadPrimitive.Empty>
-      <ComposerPrimitive.Root className="relative flex w-full flex-col">
+      <ComposerPrimitive.Root className="focus-within::ring-offset-2 relative flex w-full flex-col rounded-2xl shadow-md focus-within:ring-2 focus-within:ring-black dark:focus-within:ring-white">
         <ComposerPrimitive.Input
           placeholder="Send a message..."
           className={
-            "bg-muted focus:outline-primary placeholder:text-muted-foreground/50 max-h-[calc(50dvh)] min-h-16 w-full resize-none rounded-t-2xl px-4 pt-2 pb-3 text-base outline-none"
+            "bg-muted border-border dark:border-muted-foreground/15 focus:outline-primary placeholder:text-muted-foreground max-h-[calc(50dvh)] min-h-16 w-full resize-none rounded-t-2xl border-x border-t px-4 pt-2 pb-3 text-base outline-none"
           }
           rows={1}
           autoFocus
@@ -185,17 +185,17 @@ const Composer: FC = () => {
 
 const ComposerFooter: FC = () => {
   return (
-    <div className="bg-muted relative flex items-center justify-between rounded-b-2xl p-2">
+    <div className="bg-muted border-border dark:border-muted-foreground/15 relative flex items-center justify-between rounded-b-2xl border-x border-b p-2">
       <Button
         type="button"
         variant="ghost"
-        className="h-fit rounded-md p-[7px] hover:bg-zinc-200 dark:border-zinc-700 dark:hover:bg-zinc-900"
+        className="hover:bg-foreground/15 dark:hover:bg-background/50 h-fit rounded-md p-[7px]"
         aria-label="Attach file"
         onClick={() => {
           console.log("Attachment clicked - not implemented yet");
         }}
       >
-        <PaperclipIcon />
+        <PlusIcon />
       </Button>
 
       <div className="flex">
@@ -204,7 +204,7 @@ const ComposerFooter: FC = () => {
             <Button
               type="submit"
               variant="default"
-              className="size-8 rounded-full border dark:border-zinc-600"
+              className="dark:border-muted-foreground/90 size-8 rounded-full border"
               aria-label="Send message"
             >
               <ArrowUpIcon />
@@ -217,7 +217,7 @@ const ComposerFooter: FC = () => {
             <Button
               type="button"
               variant="default"
-              className="size-8 rounded-full border dark:border-zinc-600"
+              className="dark:border-muted-foreground/90 size-8 rounded-full border"
               aria-label="Stop generating"
             >
               <CircleStopIcon />
@@ -228,7 +228,6 @@ const ComposerFooter: FC = () => {
     </div>
   );
 };
-
 
 const MessageError: FC = () => {
   return (
@@ -425,4 +424,3 @@ const StarIcon = ({ size = 14 }: { size?: number }) => (
     />
   </svg>
 );
-
