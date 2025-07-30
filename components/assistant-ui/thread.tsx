@@ -30,12 +30,14 @@ import { ToolFallback } from "./tool-fallback";
 export const Thread: FC = () => {
   return (
     <ThreadPrimitive.Root
-      className="bg-background flex h-dvh min-w-0 flex-col"
+      // aui-thread-root
+      className="bg-background flex h-full flex-col"
       style={{
         ["--thread-max-width" as string]: "48rem",
         ["--thread-padding-x" as string]: "1rem",
       }}
     >
+      {/* aui-thread-viewport */}
       <ThreadPrimitive.Viewport className="relative flex min-w-0 flex-1 flex-col gap-6 overflow-y-scroll">
         <ThreadWelcome />
 
@@ -48,7 +50,8 @@ export const Thread: FC = () => {
         />
 
         <ThreadPrimitive.If empty={false}>
-          <motion.div className="min-h-[24px] min-w-[24px] shrink-0" />
+          {/* aui-thread-viewport-spacer */}
+          <motion.div className="min-h-6 min-w-6 shrink-0" />
         </ThreadPrimitive.If>
       </ThreadPrimitive.Viewport>
 
@@ -67,7 +70,7 @@ const ThreadScrollToBottom: FC = () => {
       <TooltipIconButton
         tooltip="Scroll to bottom"
         variant="outline"
-        className="dark:bg-background absolute -top-12 rounded-full p-4 disabled:invisible"
+        className="dark:bg-background dark:hover:bg-accent absolute -top-12 rounded-full p-4 disabled:invisible"
       >
         <ArrowDownIcon />
       </TooltipIconButton>
