@@ -364,13 +364,17 @@ const UserActionBar: FC = () => {
 
 const EditComposer: FC = () => {
   return (
+    // aui-edit-composer-wrapper
     <div className="mx-auto flex w-full max-w-[var(--thread-max-width)] flex-col gap-4 px-[var(--thread-padding-x)]">
+      {/* aui-edit-composer-root */}
       <ComposerPrimitive.Root className="bg-muted ml-auto flex w-full max-w-7/8 flex-col rounded-xl">
+        {/* aui-edit-composer-input */}
         <ComposerPrimitive.Input
           className="text-foreground flex min-h-[60px] w-full resize-none bg-transparent p-4 outline-none"
           autoFocus
         />
 
+        {/* aui-edit-composer-footer */}
         <div className="mx-3 mb-3 flex items-center justify-center gap-2 self-end">
           <ComposerPrimitive.Cancel asChild>
             <Button variant="ghost" size="sm" aria-label="Cancel edit">
@@ -395,6 +399,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
   return (
     <BranchPickerPrimitive.Root
       hideWhenSingleBranch
+      // aui-branch-picker-root
       className={cn(
         "text-muted-foreground inline-flex items-center text-xs",
         className,
@@ -406,6 +411,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
           <ChevronLeftIcon />
         </TooltipIconButton>
       </BranchPickerPrimitive.Previous>
+      {/* aui-branch-picker-state */}
       <span className="font-medium">
         <BranchPickerPrimitive.Number /> / <BranchPickerPrimitive.Count />
       </span>
