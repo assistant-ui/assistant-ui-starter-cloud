@@ -17,6 +17,7 @@ import {
   RefreshCwIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  Square,
 } from "lucide-react";
 
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
@@ -66,7 +67,7 @@ const ThreadScrollToBottom: FC = () => {
       <TooltipIconButton
         tooltip="Scroll to bottom"
         variant="outline"
-        className="dark:bg-background absolute -top-10 rounded-full disabled:invisible"
+        className="dark:bg-background absolute -top-12 rounded-full p-4 disabled:invisible"
       >
         <ArrowDownIcon />
       </TooltipIconButton>
@@ -146,7 +147,7 @@ const ThreadWelcomeSuggestions: FC = () => {
           >
             <Button
               variant="ghost"
-              className="h-auto w-full flex-1 items-start justify-start gap-1 rounded-xl border px-4 py-3.5 text-left text-sm sm:flex-col"
+              className="dark:hover:bg-accent/60 h-auto w-full flex-1 items-start justify-start gap-1 rounded-xl border px-4 py-3.5 text-left text-sm sm:flex-col"
               aria-label={suggestedAction.action}
             >
               <span className="font-medium">{suggestedAction.title}</span>
@@ -163,11 +164,11 @@ const ThreadWelcomeSuggestions: FC = () => {
 
 const Composer: FC = () => {
   return (
-    <div className="bg-background mx-auto flex w-full max-w-[var(--thread-max-width)] flex-col gap-2 px-[var(--thread-padding-x)] pb-4 md:pb-6">
+    <div className="bg-background mx-auto flex w-full max-w-[var(--thread-max-width)] flex-col gap-4 px-[var(--thread-padding-x)] pb-4 md:pb-6">
       <ThreadPrimitive.Empty>
         <ThreadWelcomeSuggestions />
       </ThreadPrimitive.Empty>
-      <ComposerPrimitive.Root className="focus-within::ring-offset-2 relative flex w-full flex-col rounded-2xl shadow-md focus-within:ring-2 focus-within:ring-black dark:focus-within:ring-white">
+      <ComposerPrimitive.Root className="focus-within::ring-offset-2 relative flex w-full flex-col rounded-2xl focus-within:ring-2 focus-within:ring-black dark:focus-within:ring-white">
         <ComposerPrimitive.Input
           placeholder="Send a message..."
           className={
@@ -186,17 +187,16 @@ const Composer: FC = () => {
 const ComposerFooter: FC = () => {
   return (
     <div className="bg-muted border-border dark:border-muted-foreground/15 relative flex items-center justify-between rounded-b-2xl border-x border-b p-2">
-      <Button
-        type="button"
+      <TooltipIconButton
+        tooltip="Attach file"
         variant="ghost"
-        className="hover:bg-foreground/15 dark:hover:bg-background/50 h-fit rounded-md p-[7px]"
-        aria-label="Attach file"
+        className="hover:bg-foreground/15 dark:hover:bg-background/50 scale-115 p-3.5"
         onClick={() => {
           console.log("Attachment clicked - not implemented yet");
         }}
       >
         <PlusIcon />
-      </Button>
+      </TooltipIconButton>
 
       <div className="flex">
         <ThreadPrimitive.If running={false}>
@@ -204,10 +204,10 @@ const ComposerFooter: FC = () => {
             <Button
               type="submit"
               variant="default"
-              className="dark:border-muted-foreground/90 size-8 rounded-full border"
+              className="dark:border-muted-foreground/90 border-muted-foreground/60 hover:bg-primary/75 size-8 rounded-full border"
               aria-label="Send message"
             >
-              <ArrowUpIcon />
+              <ArrowUpIcon className="size-5" />
             </Button>
           </ComposerPrimitive.Send>
         </ThreadPrimitive.If>
@@ -217,10 +217,10 @@ const ComposerFooter: FC = () => {
             <Button
               type="button"
               variant="default"
-              className="dark:border-muted-foreground/90 size-8 rounded-full border"
+              className="dark:border-muted-foreground/90 border-muted-foreground/60 hover:bg-primary/75 size-8 rounded-full border"
               aria-label="Stop generating"
             >
-              <CircleStopIcon />
+              <Square className="size-3.5 fill-white dark:size-4 dark:fill-black" />
             </Button>
           </ComposerPrimitive.Cancel>
         </ThreadPrimitive.If>
@@ -254,7 +254,7 @@ const AssistantMessage: FC = () => {
           </div>
         </div>
 
-        <div className="text-foreground col-span-2 col-start-2 row-start-1 my-1.5 ml-4 leading-7 break-words">
+        <div className="text-foreground col-span-2 col-start-2 row-start-1 ml-4 leading-7 break-words">
           <MessagePrimitive.Content
             components={{
               Text: MarkdownText,
@@ -278,7 +278,7 @@ const AssistantActionBar: FC = () => {
       hideWhenRunning
       autohide="not-last"
       autohideFloat="single-branch"
-      className="text-muted-foreground data-[floating]:bg-background col-start-3 row-start-2 ml-3 flex gap-1 data-[floating]:absolute data-[floating]:rounded-md data-[floating]:border data-[floating]:p-1 data-[floating]:shadow-sm"
+      className="text-muted-foreground data-floating:bg-background col-start-3 row-start-2 mt-3 ml-3 flex gap-1 data-floating:absolute data-floating:mt-2 data-floating:rounded-md data-floating:border data-floating:p-1 data-floating:shadow-sm"
     >
       <ActionBarPrimitive.Copy asChild>
         <TooltipIconButton tooltip="Copy">
@@ -303,7 +303,7 @@ const UserMessage: FC = () => {
   return (
     <MessagePrimitive.Root asChild>
       <motion.div
-        className="mx-auto grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 px-[var(--thread-padding-x)] py-4 [&:where(>*)]:col-start-2"
+        className="mx-auto grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-1 px-[var(--thread-padding-x)] py-4 [&:where(>*)]:col-start-2"
         initial={{ y: 5, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         data-role="user"
@@ -393,20 +393,6 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
         </TooltipIconButton>
       </BranchPickerPrimitive.Next>
     </BranchPickerPrimitive.Root>
-  );
-};
-
-const CircleStopIcon = () => {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      width="16"
-      height="16"
-    >
-      <rect width="10" height="10" x="3" y="3" rx="2" />
-    </svg>
   );
 };
 
