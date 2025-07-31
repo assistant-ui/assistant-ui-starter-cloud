@@ -143,9 +143,8 @@ const ThreadWelcomeSuggestions: FC = () => {
           exit={{ opacity: 0, y: 20 }}
           transition={{ delay: 0.05 * index }}
           key={`suggested-action-${suggestedAction.title}-${index}`}
-          // aui-thread-welcome-suggestions-display-narrow
-          // aui-thread-welcome-suggestions-display-wide
-          className={index > 1 ? "hidden sm:block" : "block"}
+          // aui-thread-welcome-suggestion-display
+          className="[&:nth-child(n+3)]:hidden sm:[&:nth-child(n+3)]:block"
         >
           <ThreadPrimitive.Suggestion
             prompt={suggestedAction.action}
