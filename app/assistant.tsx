@@ -38,7 +38,7 @@ export const Assistant = () => {
       <SidebarProvider>
         <div className="flex h-dvh w-full pr-0.5">
           <AppSidebar />
-          <SidebarInset className="flex-1">
+          <SidebarInset>
             <MainContent />
           </SidebarInset>
         </div>
