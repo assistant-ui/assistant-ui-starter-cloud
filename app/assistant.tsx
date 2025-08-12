@@ -30,7 +30,6 @@ const MainContent = () => {
 export const Assistant = () => {
   const runtime = useChatRuntime({
     cloud,
-    api: "/api/chat",
   });
 
   return (
