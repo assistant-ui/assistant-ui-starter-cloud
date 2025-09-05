@@ -27,9 +27,6 @@ const cloud = new AssistantCloud({
   anonymous: true,
 });
 
-
-
-
 export const Assistant = () => {
   const runtime = useChatRuntime({
     cloud,
@@ -46,7 +43,10 @@ export const Assistant = () => {
           <SidebarInset>
             <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
               <SidebarTrigger />
-              <Separator orientation="vertical" className="mr-2 h-4 border-border" />
+              <Separator
+                orientation="vertical"
+                className="mr-2 h-4 border-border"
+              />
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
