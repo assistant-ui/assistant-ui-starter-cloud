@@ -23,10 +23,10 @@ export const TooltipIconButton = forwardRef<
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          className={cn("size-6 p-1", className)}
           variant="ghost"
           size="icon"
           {...rest}
+          className={cn("size-6 p-1", className)}
           ref={ref}
         >
           {children}
