@@ -34,7 +34,7 @@ export const Assistant = () => {
   const runtime = useChatRuntime({
     cloud,
     transport: new AssistantChatTransport({
-      api: "/my-custom-api/chat", // Custom API URL
+      api: "/api/chat", // API route
     }),
   });
 
