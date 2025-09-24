@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.33",
-    "@assistant-ui/react": "^0.11.15",
+    "@assistant-ui/react": "file:../../assistant-ui/packages/react",
     "@assistant-ui/react-ai-sdk": "^1.1.0",
     "@assistant-ui/react-markdown": "^0.11.0",
     "@radix-ui/react-avatar": "^1.1.10",

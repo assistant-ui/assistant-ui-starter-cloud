@@ -5,6 +5,7 @@ import {
   ErrorPrimitive,
   MessagePrimitive,
   ThreadPrimitive,
+  useAssistantState,
 } from "@assistant-ui/react";
 import {
   ArrowDownIcon,
@@ -28,11 +29,19 @@ import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 import * as m from "motion/react-m";
 
 export const Thread: FC = () => {
+  const threadCount = useAssistantState(({ threads }) => threads?.threadIds?.length ?? 0);
+  const isLoading = useAssistantState(({ thread }) => thread.isLoading);
+  const isEmpty = useAssistantState(({ thread }) => thread.messages.length === 0);
+
+  // Only show skeleton if loading, empty, and we have multiple threads (likely a switch)
+  const switchingThreads = isLoading && isEmpty && threadCount > 1;
+
   return (
     <LazyMotion features={domAnimation}>
       <MotionConfig reducedMotion="user">
@@ -43,18 +52,49 @@ export const Thread: FC = () => {
           }}
         >
           <ThreadPrimitive.Viewport className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll px-4">
-            <ThreadWelcome />
+            {switchingThreads ? (
+              <div className="mx-auto w-full max-w-[var(--thread-max-width)] flex-1 space-y-6 py-8">
+                {/* Minimal skeleton - just a few message placeholders */}
+                <div className="flex justify-end">
+                  <Skeleton className="h-10 w-48 rounded-2xl" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-4/5" />
+                </div>
+                <div className="flex justify-end">
+                  <Skeleton className="h-10 w-64 rounded-2xl" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-3/4" />
+                  <Skeleton className="h-3 w-5/6" />
+                </div>
+              </div>
+            ) : (
+              <>
+                <ThreadWelcome />
 
-            <ThreadPrimitive.Messages
-              components={{
-                UserMessage,
-                EditComposer,
-                AssistantMessage,
-              }}
-            />
-            <ThreadPrimitive.If empty={false}>
-              <div className="aui-thread-viewport-spacer min-h-8 grow" />
-            </ThreadPrimitive.If>
+                <ThreadPrimitive.Messages
+                  components={{
+                    UserMessage,
+                    EditComposer,
+                    AssistantMessage,
+                  }}
+                />
+                <ThreadPrimitive.If empty={false}>
+                  <div className="aui-thread-viewport-spacer min-h-8 grow" />
+                </ThreadPrimitive.If>
+              </>
+            )}
+
+            {!switchingThreads && (
+              <ThreadPrimitive.Empty>
+                <div className="mx-auto w-full max-w-[var(--thread-max-width)] pb-4">
+                  <ThreadWelcomeSuggestions />
+                </div>
+              </ThreadPrimitive.Empty>
+            )}
             <Composer />
           </ThreadPrimitive.Viewport>
         </ThreadPrimitive.Root>
@@ -169,9 +209,6 @@ const Composer: FC = () => {
   return (
     <div className="aui-composer-wrapper sticky bottom-0 mx-auto flex w-full max-w-[var(--thread-max-width)] flex-col gap-4 overflow-visible rounded-t-3xl bg-background pb-4 md:pb-6">
       <ThreadScrollToBottom />
-      <ThreadPrimitive.Empty>
-        <ThreadWelcomeSuggestions />
-      </ThreadPrimitive.Empty>
       <ComposerPrimitive.Root className="aui-composer-root relative flex w-full flex-col rounded-3xl border border-border bg-muted px-1 pt-2 shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),0_2px_5px_0px_rgba(0,0,0,0.06)] dark:border-muted-foreground/15">
         <ComposerAttachments />
         <ComposerPrimitive.Input
