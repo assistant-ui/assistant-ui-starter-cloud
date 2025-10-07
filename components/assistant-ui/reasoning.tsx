@@ -1,15 +1,14 @@
 "use client";
 
-import { useControllableState } from "@radix-ui/react-use-controllable-state";
-import { useAssistantState, TextMessagePartProvider } from "@assistant-ui/react";
+import type { ReasoningMessagePartComponent } from "@assistant-ui/react";
+import { TextMessagePartProvider } from "@assistant-ui/react";
 import { BrainIcon, ChevronDownIcon } from "lucide-react";
 import {
-  createContext,
   memo,
-  type FC,
-  useContext,
+  useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -24,23 +23,6 @@ import { cn } from "@/lib/utils";
 const AUTO_CLOSE_DELAY = 1000;
 const MS_IN_SECOND = 1000;
 
-type ReasoningContextValue = {
-  isStreaming: boolean;
-  isOpen: boolean;
-  duration: number;
-  setIsOpen: (open: boolean) => void;
-};
-
-const ReasoningContext = createContext<ReasoningContextValue | null>(null);
-
-const useReasoningContext = () => {
-  const context = useContext(ReasoningContext);
-  if (!context) {
-    throw new Error("Reasoning components must be used within Reasoning");
-  }
-  return context;
-};
-
 const getThinkingMessage = (isStreaming: boolean, duration: number) => {
   if (isStreaming && duration === 0) {
     return <p>Thinking...</p>;
@@ -53,25 +35,19 @@ const getThinkingMessage = (isStreaming: boolean, duration: number) => {
   return <p>Thought for {duration} seconds</p>;
 };
 
-const ReasoningComponent: FC = () => {
-  const text = useAssistantState(({ part }) => {
-    if (part.type !== "reasoning") return "";
-    return part.text;
-  });
+const ReasoningComponent: ReasoningMessagePartComponent = ({ text, status }) => {
+  const isStreaming = status.type === "running";
 
-  const isStreaming = useAssistantState(({ part }) => part.status.type === "running");
-  const [isOpen, setIsOpen] = useControllableState({
-    defaultProp: true,
-  });
-  const [duration, setDuration] = useControllableState<number>({
-    defaultProp: 0,
-  });
+  const [isOpen, setIsOpen] = useState(true);
+  const [userInteracted, setUserInteracted] = useState(false);
+  const [duration, setDuration] = useState(0);
 
-  const [hasAutoClosed, setHasAutoClosed] = useState(false);
-  const [startTime, setStartTime] = useState<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const autoCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const programmaticChangeRef = useRef(false);
 
   const { fallbackText, hasReasoning } = useMemo(() => {
-    const trimmed = text.trim();
+    const trimmed = (text || "").trim();
     if (trimmed.length === 0) {
       return {
         fallbackText: isStreaming
@@ -87,161 +63,122 @@ const ReasoningComponent: FC = () => {
     } as const;
   }, [isStreaming, text]);
 
+  const clearAutoCloseTimer = useCallback(() => {
+    if (autoCloseTimeoutRef.current) {
+      clearTimeout(autoCloseTimeoutRef.current);
+      autoCloseTimeoutRef.current = null;
+    }
+  }, []);
+
+  const setOpenProgrammatically = useCallback((nextOpen: boolean) => {
+    programmaticChangeRef.current = true;
+    setIsOpen(nextOpen);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      clearAutoCloseTimer();
+    };
+  }, [clearAutoCloseTimer]);
+
   useEffect(() => {
     if (isStreaming) {
-      setIsOpen(true);
-      setHasAutoClosed(false);
+      clearAutoCloseTimer();
+      setOpenProgrammatically(true);
+      setUserInteracted(false);
       setDuration(0);
+      if (startTimeRef.current === null) {
+        startTimeRef.current = Date.now();
+      }
+      return;
+    }
 
-      if (startTime === null) {
-        setStartTime(Date.now());
+    if (startTimeRef.current !== null) {
+      const elapsed = Math.ceil((Date.now() - startTimeRef.current) / MS_IN_SECOND);
+      setDuration(elapsed);
+      startTimeRef.current = null;
+    }
+
+    if (!userInteracted && autoCloseTimeoutRef.current === null) {
+      autoCloseTimeoutRef.current = setTimeout(() => {
+        setOpenProgrammatically(false);
+        autoCloseTimeoutRef.current = null;
+      }, AUTO_CLOSE_DELAY);
+    }
+  }, [isStreaming, userInteracted, clearAutoCloseTimer, setOpenProgrammatically]);
+
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (programmaticChangeRef.current) {
+        programmaticChangeRef.current = false;
+        setIsOpen(nextOpen);
+        return;
       }
 
-      return;
-    }
-
-    if (startTime !== null) {
-      const elapsedSeconds = Math.ceil((Date.now() - startTime) / MS_IN_SECOND);
-      setDuration(elapsedSeconds);
-      setStartTime(null);
-    }
-  }, [isStreaming, setIsOpen, setDuration, startTime]);
-
-  useEffect(() => {
-    if (isStreaming || !isOpen || hasAutoClosed) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setIsOpen(false);
-      setHasAutoClosed(true);
-    }, AUTO_CLOSE_DELAY);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [hasAutoClosed, isOpen, isStreaming, setIsOpen]);
-
-  const contextValue = useMemo<ReasoningContextValue>(
-    () => ({
-      isStreaming,
-      isOpen: Boolean(isOpen),
-      duration,
-      setIsOpen: (open: boolean) => {
-        setIsOpen(open);
-      },
-    }),
-    [duration, isOpen, isStreaming, setIsOpen],
+      setIsOpen(nextOpen);
+      setUserInteracted(true);
+      clearAutoCloseTimer();
+    },
+    [clearAutoCloseTimer],
   );
 
   return (
-    <ReasoningContext.Provider value={contextValue}>
-      <Collapsible
-        className={cn("aui-reasoning-root w-full")}
-        open={isOpen}
-        onOpenChange={(open) => {
-          setIsOpen(open);
-        }}
+    <Collapsible
+      className={cn("aui-reasoning-root w-full")}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+    >
+      <CollapsibleTrigger
+        className={cn(
+          "aui-reasoning-trigger flex w-full items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground",
+        )}
       >
-        <ReasoningTrigger className="aui-reasoning-trigger" />
-        <ReasoningContent
-          className="aui-reasoning-content [&_p]:last:mb-4"
-          rawText={text}
-          fallbackText={fallbackText}
-          hasReasoning={hasReasoning}
+        <BrainIcon className="size-4" />
+        {getThinkingMessage(isStreaming, duration)}
+        <ChevronDownIcon
+          className={cn(
+            "size-4 transition-transform",
+            isOpen ? "rotate-180" : "rotate-0",
+          )}
         />
-      </Collapsible>
-    </ReasoningContext.Provider>
+      </CollapsibleTrigger>
+      <CollapsibleContent
+        forceMount
+        className={cn(
+          "aui-reasoning-content mt-4 overflow-hidden text-sm text-muted-foreground outline-none",
+          "group/collapsible-content",
+          "data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up",
+          "data-[state=closed]:fill-mode-forwards",
+          "data-[state=closed]:pointer-events-none",
+          "[&_p]:last:mb-4",
+        )}
+      >
+        <div
+          className={cn(
+            "aui-reasoning-text leading-relaxed",
+            "transform-gpu transition-all duration-200 ease-out",
+            "group-data-[state=open]/collapsible-content:animate-in",
+            "group-data-[state=closed]/collapsible-content:animate-out",
+            "group-data-[state=open]/collapsible-content:fade-in-0",
+            "group-data-[state=closed]/collapsible-content:fade-out-0",
+            "group-data-[state=open]/collapsible-content:zoom-in-95",
+            "group-data-[state=closed]/collapsible-content:zoom-out-95",
+            "group-data-[state=open]/collapsible-content:slide-in-from-top-2",
+            "group-data-[state=closed]/collapsible-content:slide-out-to-top-2",
+          )}
+        >
+          {hasReasoning ? (
+            <TextMessagePartProvider text={text} isRunning={isStreaming}>
+              <MarkdownText />
+            </TextMessagePartProvider>
+          ) : (
+            <p>{fallbackText}</p>
+          )}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
 
 export const Reasoning = memo(ReasoningComponent);
 Reasoning.displayName = "Reasoning";
-
-type ReasoningTriggerProps = {
-  className?: string;
-};
-
-const ReasoningTriggerComponent: FC<ReasoningTriggerProps> = ({ className }) => {
-  const { isStreaming, isOpen, duration } = useReasoningContext();
-
-  return (
-    <CollapsibleTrigger
-      className={cn(
-        "flex w-full items-center gap-2 text-muted-foreground text-sm transition-colors hover:text-foreground",
-        className,
-      )}
-    >
-      <BrainIcon className="size-4" />
-      {getThinkingMessage(isStreaming, duration)}
-      <ChevronDownIcon
-        className={cn(
-          "size-4 transition-transform",
-          isOpen ? "rotate-180" : "rotate-0",
-        )}
-      />
-    </CollapsibleTrigger>
-  );
-};
-
-const ReasoningTrigger = memo(ReasoningTriggerComponent);
-ReasoningTrigger.displayName = "ReasoningTrigger";
-
-type ReasoningContentProps = {
-  className?: string;
-  rawText: string;
-  fallbackText: string;
-  hasReasoning: boolean;
-};
-
-const ReasoningContentComponent: FC<ReasoningContentProps> = ({
-  className,
-  rawText,
-  fallbackText,
-  hasReasoning,
-}) => {
-  const { isStreaming } = useReasoningContext();
-
-  return (
-    <CollapsibleContent
-      forceMount
-      className={cn(
-        "mt-4 overflow-hidden text-sm text-muted-foreground outline-none",
-        "group/collapsible-content",
-        "data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up",
-        "data-[state=closed]:fill-mode-forwards",
-        "data-[state=closed]:pointer-events-none",
-        className,
-      )}
-    >
-      <div
-        className={cn(
-          "aui-reasoning-text leading-relaxed",
-          "transform-gpu transition-all duration-200 ease-out",
-          "group-data-[state=open]/collapsible-content:animate-in",
-          "group-data-[state=closed]/collapsible-content:animate-out",
-          "group-data-[state=open]/collapsible-content:fade-in-0",
-          "group-data-[state=closed]/collapsible-content:fade-out-0",
-          "group-data-[state=open]/collapsible-content:zoom-in-95",
-          "group-data-[state=closed]/collapsible-content:zoom-out-95",
-          "group-data-[state=open]/collapsible-content:slide-in-from-top-2",
-          "group-data-[state=closed]/collapsible-content:slide-out-to-top-2",
-        )}
-      >
-        {hasReasoning ? (
-          <TextMessagePartProvider
-            text={rawText}
-            isRunning={isStreaming}
-          >
-            <MarkdownText />
-          </TextMessagePartProvider>
-        ) : (
-          <p>{fallbackText}</p>
-        )}
-      </div>
-    </CollapsibleContent>
-  );
-};
-
-const ReasoningContent = memo(ReasoningContentComponent);
-ReasoningContent.displayName = "ReasoningContent";
