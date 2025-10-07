@@ -42,11 +42,11 @@ const useReasoningContext = () => {
 };
 
 const getThinkingMessage = (isStreaming: boolean, duration: number) => {
-  if (isStreaming || duration === 0) {
+  if (isStreaming && duration === 0) {
     return <p>Thinking...</p>;
   }
 
-  if (Number.isNaN(duration)) {
+  if (Number.isNaN(duration) || duration === 0) {
     return <p>Thought for a few seconds</p>;
   }
 
@@ -200,55 +200,43 @@ const ReasoningContentComponent: FC<ReasoningContentProps> = ({
   const { isStreaming } = useReasoningContext();
 
   return (
-    <>
-      <style jsx global>{`
-        @keyframes reasoning-slide-down {
-          from {
-            height: 0;
-            opacity: 0;
-          }
-
-          to {
-            height: var(--radix-collapsible-content-height);
-            opacity: 1;
-          }
-        }
-
-        @keyframes reasoning-slide-up {
-          from {
-            height: var(--radix-collapsible-content-height);
-            opacity: 1;
-          }
-
-          to {
-            height: 0;
-            opacity: 0;
-          }
-        }
-      `}</style>
-      <CollapsibleContent
-        forceMount
+    <CollapsibleContent
+      forceMount
+      className={cn(
+        "mt-4 overflow-hidden text-sm text-muted-foreground outline-none",
+        "group/collapsible-content",
+        "data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up",
+        "data-[state=closed]:fill-mode-forwards",
+        "data-[state=closed]:pointer-events-none",
+        className,
+      )}
+    >
+      <div
         className={cn(
-          "mt-4 overflow-hidden text-sm text-muted-foreground outline-none",
-          "data-[state=open]:animate-[reasoning-slide-down_250ms_ease]",
-          "data-[state=closed]:animate-[reasoning-slide-up_200ms_ease_forwards]",
-          className,
+          "aui-reasoning-text leading-relaxed",
+          "transform-gpu transition-all duration-200 ease-out",
+          "group-data-[state=open]/collapsible-content:animate-in",
+          "group-data-[state=closed]/collapsible-content:animate-out",
+          "group-data-[state=open]/collapsible-content:fade-in-0",
+          "group-data-[state=closed]/collapsible-content:fade-out-0",
+          "group-data-[state=open]/collapsible-content:zoom-in-95",
+          "group-data-[state=closed]/collapsible-content:zoom-out-95",
+          "group-data-[state=open]/collapsible-content:slide-in-from-top-2",
+          "group-data-[state=closed]/collapsible-content:slide-out-to-top-2",
         )}
       >
-        <div className="aui-reasoning-text leading-relaxed">
-          {hasReasoning ? (
-            <TextMessagePartProvider
-              text={rawText}
-              isRunning={isStreaming}
-            >
-              <MarkdownText />
-            </TextMessagePartProvider>
-          ) : (
-            <p>{fallbackText}</p>
-          )}
-        </div>
-      </CollapsibleContent>
-    </>
+        {hasReasoning ? (
+          <TextMessagePartProvider
+            text={rawText}
+            isRunning={isStreaming}
+          >
+            <MarkdownText />
+          </TextMessagePartProvider>
+        ) : (
+          <p>{fallbackText}</p>
+        )}
+      </div>
+    </CollapsibleContent>
   );
 };
 
