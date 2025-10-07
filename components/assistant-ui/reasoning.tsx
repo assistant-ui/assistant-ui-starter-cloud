@@ -1,7 +1,7 @@
 "use client";
 
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
-import { useMessagePartReasoning, TextMessagePartProvider } from "@assistant-ui/react";
+import { useAssistantState, TextMessagePartProvider } from "@assistant-ui/react";
 import { BrainIcon, ChevronDownIcon } from "lucide-react";
 import {
   createContext,
@@ -54,9 +54,12 @@ const getThinkingMessage = (isStreaming: boolean, duration: number) => {
 };
 
 const ReasoningComponent: FC = () => {
-  const { text, status } = useMessagePartReasoning();
+  const text = useAssistantState(({ part }) => {
+    if (part.type !== "reasoning") return "";
+    return part.text;
+  });
 
-  const isStreaming = status.type === "running";
+  const isStreaming = useAssistantState(({ part }) => part.status.type === "running");
   const [isOpen, setIsOpen] = useControllableState({
     defaultProp: true,
   });
@@ -142,7 +145,7 @@ const ReasoningComponent: FC = () => {
       >
         <ReasoningTrigger className="aui-reasoning-trigger" />
         <ReasoningContent
-          className="aui-reasoning-content"
+          className="aui-reasoning-content [&_p]:last:mb-4"
           rawText={text}
           fallbackText={fallbackText}
           hasReasoning={hasReasoning}
