@@ -134,7 +134,7 @@ const ReasoningComponent: FC = () => {
   return (
     <ReasoningContext.Provider value={contextValue}>
       <Collapsible
-        className={cn("aui-reasoning-root w-full not-prose mb-4")}
+        className={cn("aui-reasoning-root w-full")}
         open={isOpen}
         onOpenChange={(open) => {
           setIsOpen(open);
@@ -200,14 +200,41 @@ const ReasoningContentComponent: FC<ReasoningContentProps> = ({
   const { isStreaming } = useReasoningContext();
 
   return (
-    <CollapsibleContent
-      className={cn(
-        "mt-4 text-sm",
-        "data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 text-muted-foreground outline-none data-[state=closed]:animate-out data-[state=open]:animate-in",
-        className,
-      )}
-    >
-      <div className="grid gap-2">
+    <>
+      <style jsx global>{`
+        @keyframes reasoning-slide-down {
+          from {
+            height: 0;
+            opacity: 0;
+          }
+
+          to {
+            height: var(--radix-collapsible-content-height);
+            opacity: 1;
+          }
+        }
+
+        @keyframes reasoning-slide-up {
+          from {
+            height: var(--radix-collapsible-content-height);
+            opacity: 1;
+          }
+
+          to {
+            height: 0;
+            opacity: 0;
+          }
+        }
+      `}</style>
+      <CollapsibleContent
+        forceMount
+        className={cn(
+          "mt-4 overflow-hidden text-sm text-muted-foreground outline-none",
+          "data-[state=open]:animate-[reasoning-slide-down_250ms_ease]",
+          "data-[state=closed]:animate-[reasoning-slide-up_200ms_ease_forwards]",
+          className,
+        )}
+      >
         <div className="aui-reasoning-text leading-relaxed">
           {hasReasoning ? (
             <TextMessagePartProvider
@@ -220,8 +247,8 @@ const ReasoningContentComponent: FC<ReasoningContentProps> = ({
             <p>{fallbackText}</p>
           )}
         </div>
-      </div>
-    </CollapsibleContent>
+      </CollapsibleContent>
+    </>
   );
 };
 
