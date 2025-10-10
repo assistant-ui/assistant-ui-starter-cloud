@@ -1,13 +1,4 @@
 import {
-  ActionBarPrimitive,
-  BranchPickerPrimitive,
-  ComposerPrimitive,
-  ErrorPrimitive,
-  MessagePrimitive,
-  ThreadPrimitive,
-  useAssistantState,
-} from "@assistant-ui/react";
-import {
   ArrowDownIcon,
   ArrowUpIcon,
   CheckIcon,
@@ -18,30 +9,33 @@ import {
   RefreshCwIcon,
   Square,
 } from "lucide-react";
-import type { FC } from "react";
 
+import {
+  ActionBarPrimitive,
+  BranchPickerPrimitive,
+  ComposerPrimitive,
+  ErrorPrimitive,
+  MessagePrimitive,
+  ThreadPrimitive,
+} from "@assistant-ui/react";
+
+import type { FC } from "react";
+import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
+import * as m from "motion/react-m";
+
+import { Button } from "@/components/ui/button";
+import { MarkdownText } from "@/components/assistant-ui/markdown-text";
+import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
+import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import {
   ComposerAddAttachment,
   ComposerAttachments,
   UserMessageAttachments,
 } from "@/components/assistant-ui/attachment";
-import { MarkdownText } from "@/components/assistant-ui/markdown-text";
-import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
-import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { cn } from "@/lib/utils";
-import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
-import * as m from "motion/react-m";
 
 export const Thread: FC = () => {
-  const threadCount = useAssistantState(({ threads }) => threads?.threadIds?.length ?? 0);
-  const isLoading = useAssistantState(({ thread }) => thread.isLoading);
-  const isEmpty = useAssistantState(({ thread }) => thread.messages.length === 0);
-
-  // Only show skeleton if loading, empty, and we have multiple threads (likely a switch)
-  const switchingThreads = isLoading && isEmpty && threadCount > 1;
-
   return (
     <LazyMotion features={domAnimation}>
       <MotionConfig reducedMotion="user">
@@ -52,49 +46,22 @@ export const Thread: FC = () => {
           }}
         >
           <ThreadPrimitive.Viewport className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll px-4">
-            {switchingThreads ? (
-              <div className="mx-auto w-full max-w-[var(--thread-max-width)] flex-1 space-y-6 py-8">
-                {/* Minimal skeleton - just a few message placeholders */}
-                <div className="flex justify-end">
-                  <Skeleton className="h-10 w-48 rounded-2xl" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-3 w-full" />
-                  <Skeleton className="h-3 w-4/5" />
-                </div>
-                <div className="flex justify-end">
-                  <Skeleton className="h-10 w-64 rounded-2xl" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-3 w-full" />
-                  <Skeleton className="h-3 w-3/4" />
-                  <Skeleton className="h-3 w-5/6" />
-                </div>
-              </div>
-            ) : (
-              <>
-                <ThreadWelcome />
+            <ThreadPrimitive.If empty>
+              <ThreadWelcome />
+            </ThreadPrimitive.If>
 
-                <ThreadPrimitive.Messages
-                  components={{
-                    UserMessage,
-                    EditComposer,
-                    AssistantMessage,
-                  }}
-                />
-                <ThreadPrimitive.If empty={false}>
-                  <div className="aui-thread-viewport-spacer min-h-8 grow" />
-                </ThreadPrimitive.If>
-              </>
-            )}
+            <ThreadPrimitive.Messages
+              components={{
+                UserMessage,
+                EditComposer,
+                AssistantMessage,
+              }}
+            />
 
-            {!switchingThreads && (
-              <ThreadPrimitive.Empty>
-                <div className="mx-auto w-full max-w-[var(--thread-max-width)] pb-4">
-                  <ThreadWelcomeSuggestions />
-                </div>
-              </ThreadPrimitive.Empty>
-            )}
+            <ThreadPrimitive.If empty={false}>
+              <div className="aui-thread-viewport-spacer min-h-8 grow" />
+            </ThreadPrimitive.If>
+
             <Composer />
           </ThreadPrimitive.Viewport>
         </ThreadPrimitive.Root>
@@ -119,37 +86,36 @@ const ThreadScrollToBottom: FC = () => {
 
 const ThreadWelcome: FC = () => {
   return (
-    <ThreadPrimitive.Empty>
-      <div className="aui-thread-welcome-root mx-auto my-auto flex w-full max-w-[var(--thread-max-width)] flex-grow flex-col">
-        <div className="aui-thread-welcome-center flex w-full flex-grow flex-col items-center justify-center">
-          <div className="aui-thread-welcome-message flex size-full flex-col justify-center px-8">
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="aui-thread-welcome-message-motion-1 text-2xl font-semibold"
-            >
-              Hello there!
-            </m.div>
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ delay: 0.1 }}
-              className="aui-thread-welcome-message-motion-2 text-2xl text-muted-foreground/65"
-            >
-              How can I help you today?
-            </m.div>
-          </div>
+    <div className="aui-thread-welcome-root mx-auto my-auto flex w-full max-w-[var(--thread-max-width)] flex-grow flex-col">
+      <div className="aui-thread-welcome-center flex w-full flex-grow flex-col items-center justify-center">
+        <div className="aui-thread-welcome-message flex size-full flex-col justify-center px-8">
+          <m.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="aui-thread-welcome-message-motion-1 text-2xl font-semibold"
+          >
+            Hello there!
+          </m.div>
+          <m.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ delay: 0.1 }}
+            className="aui-thread-welcome-message-motion-2 text-2xl text-muted-foreground/65"
+          >
+            How can I help you today?
+          </m.div>
         </div>
       </div>
-    </ThreadPrimitive.Empty>
+      <ThreadSuggestions />
+    </div>
   );
 };
 
-const ThreadWelcomeSuggestions: FC = () => {
+const ThreadSuggestions: FC = () => {
   return (
-    <div className="aui-thread-welcome-suggestions grid w-full gap-2 @md:grid-cols-2">
+    <div className="aui-thread-welcome-suggestions grid w-full gap-2 pb-4 @md:grid-cols-2">
       {[
         {
           title: "What's the weather",
@@ -182,8 +148,7 @@ const ThreadWelcomeSuggestions: FC = () => {
         >
           <ThreadPrimitive.Suggestion
             prompt={suggestedAction.action}
-            method="replace"
-            autoSend
+            send
             asChild
           >
             <Button
@@ -276,7 +241,7 @@ const AssistantMessage: FC = () => {
   return (
     <MessagePrimitive.Root asChild>
       <div
-        className="aui-assistant-message-root relative mx-auto w-full max-w-[var(--thread-max-width)] animate-in py-4 duration-200 fade-in slide-in-from-bottom-1 last:mb-24"
+        className="aui-assistant-message-root relative mx-auto w-full max-w-[var(--thread-max-width)] animate-in py-4 duration-150 ease-out fade-in slide-in-from-bottom-1 last:mb-24"
         data-role="assistant"
       >
         <div className="aui-assistant-message-content mx-2 leading-7 break-words text-foreground">
@@ -329,7 +294,7 @@ const UserMessage: FC = () => {
   return (
     <MessagePrimitive.Root asChild>
       <div
-        className="aui-user-message-root mx-auto grid w-full max-w-[var(--thread-max-width)] animate-in auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 px-2 py-4 duration-200 fade-in slide-in-from-bottom-1 first:mt-3 last:mb-5 [&:where(>*)]:col-start-2"
+        className="aui-user-message-root mx-auto grid w-full max-w-[var(--thread-max-width)] animate-in auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-2 px-2 py-4 duration-150 ease-out fade-in slide-in-from-bottom-1 first:mt-3 last:mb-5 [&:where(>*)]:col-start-2"
         data-role="user"
       >
         <UserMessageAttachments />

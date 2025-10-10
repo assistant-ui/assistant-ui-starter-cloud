@@ -2,11 +2,13 @@ import type { FC } from "react";
 import {
   ThreadListItemPrimitive,
   ThreadListPrimitive,
+  useAssistantState,
 } from "@assistant-ui/react";
 import { ArchiveIcon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const ThreadList: FC = () => {
   return (
@@ -32,7 +34,25 @@ const ThreadListNew: FC = () => {
 };
 
 const ThreadListItems: FC = () => {
+  const isLoading = useAssistantState(({ threads }) => threads.isLoading);
+
+  if (isLoading) {
+    return <ThreadListSkeleton />;
+  }
+
   return <ThreadListPrimitive.Items components={{ ThreadListItem }} />;
+};
+
+const ThreadListSkeleton: FC = () => {
+  return (
+    <>
+      {Array.from({ length: 5 }, (_, i) => (
+        <div key={i} className="flex items-center gap-2 rounded-md px-3 py-2">
+          <Skeleton className="h-[22px] flex-grow" />
+        </div>
+      ))}
+    </>
+  );
 };
 
 const ThreadListItem: FC = () => {
