@@ -5,6 +5,7 @@ import {
   useChatRuntime,
   AssistantChatTransport,
 } from "@assistant-ui/react-ai-sdk";
+import { lastAssistantMessageIsCompleteWithToolCalls } from "ai";
 import { Thread } from "@/components/assistant-ui/thread";
 import {
   SidebarInset,
@@ -30,6 +31,7 @@ const cloud = new AssistantCloud({
 export const Assistant = () => {
   const runtime = useChatRuntime({
     cloud,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     transport: new AssistantChatTransport({
       api: "/api/chat", // API route
     }),
